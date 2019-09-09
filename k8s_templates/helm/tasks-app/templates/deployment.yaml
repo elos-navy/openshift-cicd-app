@@ -1,0 +1,55 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ include "tasks-app.fullname" . }}
+  name: {{ include "tasks-app.fullname" . }}
+spec:
+  progressDeadlineSeconds: 2147483647
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: {{ include "tasks-app.fullname" . }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ include "tasks-app.fullname" . }}
+    spec:
+      imagePullSecrets:
+      - name: {{ .Values.imageCredentials.secretName }}
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: {{ .Chart.Name }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /opt/jboss/configuration/application-users.properties
+          name: jboss-config
+          subPath: application-users.properties
+        - mountPath: /opt/jboss/configuration/application-roles.properties
+          name: jboss-config
+          subPath: application-roles.properties
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: jboss-config
+        configMap:
+          defaultMode: 420
+          name: {{ include "tasks-app.fullname" . }}-users-roles
+status: {}
