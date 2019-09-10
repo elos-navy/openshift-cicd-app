@@ -12,7 +12,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 If release name contains chart name it will be used as a full name.
 */}}
 {{- define "tasks-app.fullname" -}}
-{{- printf "%s" .Values.name | trunc 63 | trimsuffix "-" -}}
+{{- printf "%s" .Values.name | trunc 63 -}}
 {{- end -}}
 
 {{/*
