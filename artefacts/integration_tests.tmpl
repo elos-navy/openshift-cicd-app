@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Wait and check if service is available
+for i in $(seq 1 10); do
+  curl -i -f -u 'tasks:redhat1' -H 'Content-Length: 0' -X GET {{ (ds "config").application.url }}
+  [ $i -eq 10 ] && exit 1
+  sleep 10
+done
+
+# Create a new task called "integration_test_1"
+echo "Creating task"
+curl -i -f -u 'tasks:redhat1' -H 'Content-Length: 0' -X POST {{ (ds "config").application.url }}/ws/tasks/integration_test_1
+
+# Retrieve task with id "1"
+echo "Retrieving tasks"
+curl -i -f -u 'tasks:redhat1' -H 'Content-Length: 0' -X GET {{ (ds "config").application.url }}/ws/tasks/1
+
+# Delete task with id "1"
+echo "Deleting tasks"
+curl -i -f -u 'tasks:redhat1' -H 'Content-Length: 0' -X DELETE {{ (ds "config").application.url }}/ws/tasks/1

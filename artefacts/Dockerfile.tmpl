@@ -1,0 +1,10 @@
+FROM jboss/wildfly:latest
+
+RUN curl {{ (ds "config").nexus.url }}/repository/releases/org/jboss/quickstarts/eap/tasks/{{ (ds "config").build.version }}/tasks-{{ (ds "config").build.version }}.war \
+    --output /opt/jboss/wildfly/standalone/deployments/tasks-{{ (ds "config").build.version }}.war
+
+RUN mkdir -p /opt/jboss/configuration && \
+    mv /opt/jboss/wildfly/standalone/configuration/application-*properties /opt/jboss/configuration && \
+    ln -s /opt/jboss/configuration/application-roles.properties /opt/jboss/wildfly/standalone/configuration/application-roles.properties && \
+    ln -s /opt/jboss/configuration/application-users.properties /opt/jboss/wildfly/standalone/configuration/application-users.properties
+
